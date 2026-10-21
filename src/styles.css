@@ -1,0 +1,148 @@
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  --radius:28px;
+  --gutter:clamp(16px,3vw,32px);
+  --banner-top:max(20px,env(safe-area-inset-top));
+  --banner:56px;
+  --below-banner:calc(var(--banner-top) + var(--banner) + 20px);
+  --fade:36px;
+  --paper:#dcdcdc;
+  --muted:#6b6b6b;
+  --late:#b3303e;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-family:Comfortaa,ui-sans-serif,system-ui,sans-serif;
+  font-synthesis:none;-webkit-text-size-adjust:100%;text-size-adjust:100%;
+  color:#111;background:var(--paper);color-scheme:light;
+}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
+button,input{font:inherit;color:inherit}
+button,a{-webkit-tap-highlight-color:transparent}
+button{cursor:pointer;touch-action:manipulation;border:0;background:transparent;padding:0}
+a{color:inherit}
+[hidden]{display:none!important}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid currentColor;outline-offset:4px}
+#viewport{position:absolute;left:0;top:0;width:100vw;height:100dvh;overflow:hidden}
+#background{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:0}
+#app{position:relative;width:100%;height:100%;z-index:1}
+/* Vidro do nicrainha: a cena refrata o fundo através dele. */
+.glass{border:0;border-radius:var(--radius);background:transparent}
+.no-webgl .glass{box-shadow:inset 0 0 0 1px currentColor}
+.no-webgl #background{visibility:hidden}
+
+/* ── cabeçalho ─────────────────────────────────────────── */
+.banner{position:absolute;top:var(--banner-top);left:var(--gutter);right:var(--gutter);display:flex;align-items:center;justify-content:space-between;gap:12px;height:var(--banner);z-index:2}
+.wordmark{font-size:30px;font-weight:700;letter-spacing:-1px;white-space:nowrap}
+.bubbles{display:flex;gap:12px;min-width:0}
+.bubble{display:flex;align-items:center;justify-content:center;gap:8px;min-height:var(--banner);padding:0 var(--radius);font-size:14px;font-weight:600;white-space:nowrap;text-decoration:none}
+.bubble.off{color:var(--muted)}
+
+/* ── área rolável ──────────────────────────────────────── */
+.scroll{position:absolute;top:var(--below-banner);left:0;right:0;bottom:0;overflow:auto;overscroll-behavior:contain;
+  mask-image:linear-gradient(to bottom,transparent,#000 var(--fade));-webkit-mask-image:linear-gradient(to bottom,transparent,#000 var(--fade))}
+.content{max-width:1180px;margin:0 auto;padding:12px var(--gutter) calc(var(--gutter) + env(safe-area-inset-bottom));display:grid;gap:16px}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.toolbar .spacer{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 18px;font-size:13px;font-weight:600}
+.chip.off{color:var(--muted)}
+.chip.off .swatch{background:transparent!important}
+
+.panel{padding:var(--radius)}
+h1{font-size:clamp(28px,4vw,40px);font-weight:600;letter-spacing:-1.2px;line-height:1.15;margin:0}
+h2{font-size:20px;font-weight:600;letter-spacing:-.5px;margin:0 0 14px}
+h3{font-size:13px;font-weight:700;margin:18px 0 8px;letter-spacing:.2px}
+h3:first-child{margin-top:0}
+.note{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
+.empty{font-size:13px;color:var(--muted);padding:6px 0}
+
+/* ── itens ─────────────────────────────────────────────── */
+.swatch{display:inline-block;width:12px;height:12px;border:1px solid #000;flex-shrink:0}
+.item{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:4px 12px;align-items:start;padding:10px 0;border-bottom:1px solid #0000001a}
+.item:last-child{border-bottom:0}
+.item .swatch{margin-top:3px}
+.item .t{font-size:14px;font-weight:600;line-height:1.35}
+.item .meta{grid-column:2;font:12px/1.5 var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.item .acts{grid-row:1/3;grid-column:3;display:flex;gap:2px}
+.item.done .t{text-decoration:line-through;color:var(--muted)}
+.act{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;font-size:14px;text-decoration:none;color:#111}
+.act:hover{background:#0000000d}
+.tag{display:inline-block;margin-left:8px;padding:0 8px;border:1px solid currentColor;border-radius:999px;font-size:11px;font-weight:700;line-height:18px;vertical-align:1px;white-space:nowrap}
+.tag.late{color:var(--late)}
+.tag.ok{color:var(--muted)}
+
+/* folha branca: onde os dados moram, como os mapas e tabelas do netsy */
+.sheet{background:#fff;border:1px solid #000}
+.sheet-pad{padding:4px 20px}
+.nav{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.nav .label{flex:1;text-align:center;font-weight:700;font-size:15px}
+.nav .bubble{min-height:44px;padding:0 20px}
+
+/* semana */
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.day{min-height:220px;border-right:1px solid #0000001a;display:flex;flex-direction:column}
+.day:last-child{border-right:0}
+.day-head{display:flex;justify-content:space-between;align-items:baseline;padding:8px 10px;border-bottom:1px solid #111;font-size:12px;font-weight:700}
+.day-head b{font:600 15px var(--mono)}
+.day.today .day-head{background:#111;color:#fff}
+.day-body{padding:6px;display:grid;gap:6px;align-content:start}
+.ev{border-left:4px solid var(--c);padding:4px 6px 5px 8px;background:color-mix(in srgb,var(--c) 18%,#fff);font-size:12px;line-height:1.3}
+.ev b{display:block;font-weight:600}
+.ev span{font:11px var(--mono);color:var(--muted)}
+.ev.done b{text-decoration:line-through;color:var(--muted)}
+
+/* mês */
+.month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.month .wd{padding:8px 0;text-align:center;font-size:11px;font-weight:700;border-bottom:1px solid #111}
+.cell{min-height:92px;padding:6px;border-right:1px solid #0000001a;border-bottom:1px solid #0000001a;text-align:left;display:flex;flex-direction:column;gap:3px;overflow:hidden}
+.cell:nth-child(7n+7){border-right:0}
+.cell .n{font:600 12px var(--mono)}
+.cell.out .n{color:#0000004d}
+.cell.today .n{background:#111;color:#fff;border-radius:999px;padding:1px 6px;align-self:flex-start}
+.cell.sel{background:#0000000a}
+.cell .bar{font-size:10.5px;line-height:1.35;padding:1px 4px;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 18%,#fff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell .more{font-size:10px;color:var(--muted)}
+.cell .dots{display:none;gap:3px;flex-wrap:wrap}
+.cell .dots i{width:7px;height:7px;border:1px solid #000;background:var(--c)}
+.day-detail{border-top:1px solid #111;padding:4px 20px 8px}
+.day-detail h3{margin-top:14px}
+
+/* ── cadeado ───────────────────────────────────────────── */
+.lock{position:absolute;inset:0;display:grid;place-items:center;padding:24px}
+.lock .wordmark{position:absolute;top:var(--banner-top);left:var(--gutter);line-height:var(--banner)}
+.lock-card{width:min(100%,420px);padding:36px}
+.lock-card h1{margin-bottom:24px}
+.lock-card input[type=password]{width:100%;min-height:52px;border:1px solid currentColor;border-radius:var(--radius);background:transparent;padding:10px 20px;font-size:16px}
+.lock-card label{display:flex;align-items:center;gap:10px;font-size:13px;margin-top:16px}
+.lock-card label input{accent-color:#111;width:16px;height:16px;margin:0}
+.lock-error{min-height:20px;font-size:13px;color:var(--late);margin-top:12px}
+.begin{display:flex;justify-content:space-between;align-items:center;gap:20px;width:100%;margin-top:20px;min-height:48px;padding:12px 0 0;border-top:1px solid #0003;font-size:14px;font-weight:600}
+.begin span{font-size:20px}
+
+/* gatinho rolando enquanto a senha é conferida (do netsy) */
+.loading{position:fixed;inset:0;z-index:20;display:grid;place-content:center;justify-items:center;gap:8px;cursor:progress}
+.loading img{width:160px;height:auto}
+.loading p{margin:0;font-size:22px;font-weight:700;-webkit-text-stroke:5px #fff;paint-order:stroke fill}
+.loading span{animation:loading-dot 1.2s infinite both}
+.loading span:nth-child(2){animation-delay:.2s}
+.loading span:nth-child(3){animation-delay:.4s}
+@keyframes loading-dot{0%,20%{opacity:0}50%,100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.loading span{animation:none}}
+
+@media (max-width:760px){
+  :root{--banner:48px}
+  .wordmark{font-size:24px}
+  .banner .bubble{padding:0 16px;font-size:13px}
+  .banner .wide{display:none}
+  .week{grid-template-columns:1fr}
+  .day{min-height:0;border-right:0;border-bottom:1px solid #111}
+  .day:last-child{border-bottom:0}
+  .day-head{border-bottom:1px solid #0000001a}
+  .day-body:empty{display:none}
+  .cell{min-height:52px;padding:4px}
+  .cell .bar,.cell .more{display:none}
+  .cell .dots{display:flex}
+  .panel{padding:20px}
+  .sheet-pad,.day-detail{padding-left:14px;padding-right:14px}
+  .toolbar .bubble{padding:0 18px}
+  .lock-card{padding:28px}
+}

@@ -35,6 +35,13 @@ jobs:
 
       - run: pip install -r scripts/requirements.txt
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
       - name: puxar Moodle + Google Agenda
         env:
           MOODLE_URL: ${{ secrets.MOODLE_URL }}
@@ -43,10 +50,12 @@ jobs:
           GCAL_ICS: ${{ secrets.GCAL_ICS }}
         run: python scripts/sync.py
 
+      - run: npm run build
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: dist
       - id: deploy
         uses: actions/deploy-pages@v4
 

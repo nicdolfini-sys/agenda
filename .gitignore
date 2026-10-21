@@ -1,2 +1,4 @@
-site/data.enc.json
+public/data.enc.json
+node_modules/
+dist/
 __pycache__/

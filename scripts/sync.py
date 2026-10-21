@@ -25,7 +25,7 @@ BASE = os.environ["MOODLE_URL"].rstrip("/")
 TOKEN = os.environ["MOODLE_TOKEN"]
 SENHA = os.environ["AGENDA_SENHA"]
 GCAL = os.environ.get("GCAL_ICS", "").split()
-OUT = Path(__file__).resolve().parent.parent / "site" / "data.enc.json"
+OUT = Path(__file__).resolve().parent.parent / "public" / "data.enc.json"
 PBKDF2_ITER = 250_000
 
 NOW = int(time.time())
@@ -41,13 +41,22 @@ def ws(fn, **params):
                 flat[f"{k}[{i}]"] = x
         else:
             flat[k] = v
-    r = requests.post(
-        f"{BASE}/webservice/rest/server.php",
-        params={"moodlewsrestformat": "json", "wsfunction": fn, "wstoken": TOKEN},
-        data=flat,
-        timeout=60,
-    )
-    r.raise_for_status()
+    # O Moodle da UFSC às vezes não responde para os servidores do GitHub: tenta algumas vezes
+    for tentativa in range(5):
+        try:
+            r = requests.post(
+                f"{BASE}/webservice/rest/server.php",
+                params={"moodlewsrestformat": "json", "wsfunction": fn, "wstoken": TOKEN},
+                data=flat,
+                timeout=(20, 60),
+            )
+            r.raise_for_status()
+            break
+        except (requests.ConnectionError, requests.Timeout) as e:
+            if tentativa == 4:
+                raise
+            print(f"Moodle não respondeu ({e.__class__.__name__}), tentando de novo…", file=sys.stderr)
+            time.sleep(15 * (tentativa + 1))
     d = r.json()
     if isinstance(d, dict) and d.get("exception"):
         raise RuntimeError(f"{fn}: {d.get('errorcode')} {d.get('message')}")
