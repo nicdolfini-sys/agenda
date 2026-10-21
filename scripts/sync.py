@@ -185,6 +185,11 @@ def cifrar(obj):
 
 
 def main():
+    if len(SENHA) < 8:
+        # Sem senha decente, não publica dado nenhum (o site fica só com o cadeado).
+        OUT.unlink(missing_ok=True)
+        print("AGENDA_SENHA ausente ou curta demais: nada foi publicado", file=sys.stderr)
+        return
     nome, disciplinas, itens = moodle()
     itens += google()
     dados = {"nome": nome, "atualizado": NOW, "moodle": BASE, "disciplinas": disciplinas, "itens": itens}
