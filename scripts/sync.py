@@ -199,7 +199,20 @@ def main():
         OUT.unlink(missing_ok=True)
         print("AGENDA_SENHA ausente ou curta demais: nada foi publicado", file=sys.stderr)
         return
-    nome, disciplinas, itens = moodle()
+    try:
+        nome, disciplinas, itens = moodle()
+    except (requests.ConnectionError, requests.Timeout) as e:
+        # Moodle fora do ar ou bloqueando o GitHub: republica os dados que já estão no site
+        anterior = os.environ.get("SITE_URL", "").rstrip("/")
+        print(f"Moodle inacessível ({e.__class__.__name__}); mantendo os dados publicados", file=sys.stderr)
+        if not anterior:
+            raise
+        r = requests.get(f"{anterior}/data.enc.json", params={"t": NOW}, timeout=30)
+        r.raise_for_status()
+        OUT.parent.mkdir(parents=True, exist_ok=True)
+        OUT.write_bytes(r.content)
+        print("::warning::Moodle não respondeu; o site continua com os dados da última leitura")
+        return
     itens += google()
     dados = {"nome": nome, "atualizado": NOW, "moodle": BASE, "disciplinas": disciplinas, "itens": itens}
     OUT.parent.mkdir(parents=True, exist_ok=True)

@@ -48,6 +48,7 @@ jobs:
           MOODLE_TOKEN: ${{ secrets.MOODLE_TOKEN }}
           AGENDA_SENHA: ${{ secrets.AGENDA_SENHA }}
           GCAL_ICS: ${{ secrets.GCAL_ICS }}
+          SITE_URL: https://nicdolfini-sys.github.io/agenda
         run: python scripts/sync.py
 
       - run: npm run build
