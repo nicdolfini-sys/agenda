@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Planner da Nicolle</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌷</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fdf8f3; --card:#fffdfa; --ink:#4a3f45; --muted:#8c7f86; --line:#efe4dc;
+  --accent:#d9849b; --accent-soft:#f8e1e7; --late:#c96a6a; --late-soft:#fbe3e0; --ok:#6f9f86; --ok-soft:#e2f1e8;
+  --c0:#f7d6e0; --c1:#fde2c8; --c2:#fbf0c2; --c3:#d4ecdc; --c4:#d3e6f5; --c5:#e3dcf4; --c6:#f4dcef; --c7:#dbeee9;
+  --pessoal:#e6e0f8; --pessoal-ink:#6c5aa8;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:Lora,Georgia,serif;font-size:16px;line-height:1.45}
+button,input{font:inherit;color:inherit}
+a{color:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:1.9rem;font-weight:600;margin:0}
+h2{font-size:1.15rem;font-weight:600;margin:0 0 10px}
+.sub{color:var(--muted);font-size:.9rem}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;cursor:pointer;text-decoration:none;font-size:.9rem;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.on{background:var(--accent-soft);border-color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:18px;box-shadow:0 1px 0 #00000005}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tabs{margin-bottom:14px}
+.chips{margin-bottom:16px}
+.chip{border-radius:999px;padding:3px 11px;font-size:.82rem;cursor:pointer;border:1px solid transparent;user-select:none}
+.chip.off{opacity:.35;text-decoration:line-through}
+/* itens */
+.item{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:12px;margin:6px 0;border-left:5px solid var(--cor,#eee);background:color-mix(in srgb,var(--cor) 35%,white)}
+.item .t{font-weight:500}
+.item .meta{font-size:.8rem;color:var(--muted)}
+.item .acoes{margin-left:auto;display:flex;gap:4px;flex-shrink:0}
+.ico{border:none;background:none;cursor:pointer;padding:2px 5px;border-radius:8px;font-size:.95rem;opacity:.65;text-decoration:none}
+.ico:hover{opacity:1;background:#ffffff99}
+.tag{font-size:.72rem;border-radius:999px;padding:1px 8px;margin-left:6px;white-space:nowrap;vertical-align:1px}
+.tag.late{background:var(--late-soft);color:var(--late)}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.tag.soon{background:var(--accent-soft);color:var(--accent)}
+.item.feito{opacity:.55}
+.item.feito .t{text-decoration:line-through}
+.vazio{color:var(--muted);font-style:italic;font-size:.92rem;padding:6px 2px}
+/* semana */
+.semana-nav{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.semana-nav .lbl{font-weight:600;min-width:200px;text-align:center}
+.semana{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.dia{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px;min-height:140px}
+.dia.hoje{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.dia .d{font-size:.82rem;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between}
+.dia .d b{color:var(--ink);font-size:1.05rem}
+.dia .item{padding:6px 7px;font-size:.84rem;flex-direction:column;gap:0}
+.dia .item .meta{font-size:.72rem}
+/* mês */
+.mes{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.mes .cab{font-size:.78rem;color:var(--muted);text-align:center;padding:4px 0}
+.cel{background:var(--card);border:1px solid var(--line);border-radius:10px;min-height:84px;padding:4px 5px;cursor:pointer;overflow:hidden}
+.cel.fora{opacity:.4}
+.cel.hoje{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.cel.sel{background:var(--accent-soft)}
+.cel .n{font-size:.8rem;font-weight:600}
+.cel .p{font-size:.7rem;border-radius:6px;padding:1px 4px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:var(--cor)}
+.cel .mais{font-size:.68rem;color:var(--muted)}
+.grupo h3{font-size:.95rem;margin:14px 0 4px;font-weight:600}
+/* cadeado */
+#cadeado{min-height:100vh;display:grid;place-items:center;padding:16px}
+#cadeado form{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px 24px;width:100%;max-width:360px;text-align:center}
+#cadeado input[type=password]{width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);margin:14px 0 10px}
+#cadeado .erro{color:var(--late);font-size:.88rem;min-height:1.3em}
+#cadeado label{font-size:.85rem;color:var(--muted)}
+.hidden{display:none!important}
+@media (max-width:760px){
+  .semana{grid-template-columns:1fr}
+  .dia{min-height:0}
+  .cel{min-height:54px}
+  .cel .p{display:none}
+  .cel .dots{display:flex;gap:2px;flex-wrap:wrap;margin-top:3px}
+  .cel .dots i{width:7px;height:7px;border-radius:50%;background:var(--cor);display:block;filter:saturate(2) brightness(.92)}
+  h1{font-size:1.5rem}
+}
+@media (min-width:761px){ .cel .dots{display:none} }
+</style>
+</head>
+<body>
+
+<div id="cadeado">
+  <form id="form-senha" autocomplete="on">
+    <div style="font-size:2.2rem">🌷</div>
+    <h1 style="font-size:1.4rem">Planner</h1>
+    <input type="text" name="username" value="nicolle" autocomplete="username" class="hidden">
+    <input type="password" id="senha" placeholder="senha" autocomplete="current-password" autofocus>
+    <div class="erro" id="erro"></div>
+    <label><input type="checkbox" id="lembrar" checked> lembrar neste aparelho</label><br><br>
+    <button class="btn on" type="submit">abrir</button>
+  </form>
+</div>
+
+<div class="wrap hidden" id="app">
+  <header>
+    <div>
+      <h1 id="ola">Olá!</h1>
+      <div class="sub" id="atualizado"></div>
+    </div>
+    <div class="row">
+      <a class="btn" id="btn-moodle" target="_blank" rel="noopener">Moodle ↗</a>
+      <a class="btn" href="https://calendar.google.com/calendar/r/eventedit" target="_blank" rel="noopener">+ compromisso pessoal ↗</a>
+      <button class="btn" id="sair" title="esquecer a senha neste aparelho">sair</button>
+    </div>
+  </header>
+
+  <section class="card" id="atencao">
+    <h2>Atenção 🔔</h2>
+    <div id="lista-atencao"></div>
+  </section>
+
+  <div class="row tabs" id="tabs">
+    <button class="btn on" data-v="semana">Semana</button>
+    <button class="btn" data-v="mes">Mês</button>
+    <button class="btn" data-v="lista">Lista</button>
+    <span style="flex:1"></span>
+    <button class="btn" id="tg-feitos">mostrar entregues</button>
+  </div>
+  <div class="row chips" id="chips"></div>
+
+  <section id="v-semana"></section>
+  <section id="v-mes" class="hidden"></section>
+  <section id="v-lista" class="hidden"></section>
+</div>
+
+<script>
+const LS = {
+  get(k, d){ try{ const v = localStorage.getItem('planner.'+k); return v===null ? d : JSON.parse(v) }catch{ return d } },
+  set(k, v){ try{ localStorage.setItem('planner.'+k, JSON.stringify(v)) }catch{} },
+  del(k){ try{ localStorage.removeItem('planner.'+k) }catch{} },
+};
+const $ = s => document.querySelector(s);
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const ub64 = a => btoa(String.fromCharCode(...new Uint8Array(a)));
+
+// ---------- cripto ----------
+async function derivar(senha, pacote){
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(senha), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2', hash:'SHA-256', salt:b64(pacote.sal), iterations:pacote.iter},
+    base, {name:'AES-GCM', length:256}, true, ['decrypt']);
+}
+async function abrir(chave, pacote){
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(pacote.iv)}, chave, b64(pacote.dados));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+async function baixar(){
+  const r = await fetch('data.enc.json?t='+Date.now(), {cache:'no-store'});
+  if(!r.ok) throw new Error('não achei os dados ('+r.status+')');
+  return r.json();
+}
+
+let PACOTE, DADOS;
+async function iniciar(){
+  try{ PACOTE = await baixar() }catch(e){ $('#erro').textContent = e.message; return }
+  const salva = LS.get('senha', null);
+  if(salva){
+    try{ await entrar(salva, false); return }catch{ LS.del('senha') }
+  }
+}
+async function entrar(senha, lembrar){
+  const chave = await derivar(senha, PACOTE);
+  DADOS = await abrir(chave, PACOTE);
+  if(lembrar) LS.set('senha', senha);
+  $('#cadeado').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+  montar();
+}
+$('#form-senha').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  $('#erro').textContent = 'abrindo…';
+  try{ await entrar($('#senha').value, $('#lembrar').checked) }
+  catch{ $('#erro').textContent = 'senha errada 🥲' }
+});
+$('#sair').onclick = () => { LS.del('senha'); location.reload() };
+
+// ---------- datas ----------
+const DIAS = ['dom','seg','ter','qua','qui','sex','sáb'];
+const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const inicioDia = d => { const x = new Date(d); x.setHours(0,0,0,0); return x };
+const addDias = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x };
+const mesmoDia = (a, b) => a.toDateString() === b.toDateString();
+const hh = d => d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+const dataCurta = d => `${DIAS[d.getDay()]} ${d.getDate()}/${d.getMonth()+1}`;
+function quandoDate(it){
+  if(it.quando == null) return null;
+  if(typeof it.quando === 'string'){ const [y,m,d] = it.quando.split('-').map(Number); return new Date(y, m-1, d) }
+  return new Date(it.quando * 1000);
+}
+
+// ---------- estado ----------
+let VISTA = LS.get('vista', 'semana');
+let FEITOS = LS.get('feitos', false);
+let OCULTOS = new Set(LS.get('ocultos', []));
+let DESLIGADAS = new Set(LS.get('desligadas', []));
+let SEMANA0 = inicioDia(new Date()); SEMANA0 = addDias(SEMANA0, -((SEMANA0.getDay()+6)%7)); // segunda
+let MES0 = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+let DIA_SEL = inicioDia(new Date());
+
+const cores = {};
+function cor(it){ return it.origem === 'google' ? 'var(--pessoal)' : (cores[it.disciplina] || 'var(--c7)') }
+const grupo = it => it.origem === 'google' ? 'Pessoal' : (it.disciplina || 'Outros');
+const chaveItem = it => it.origem + '|' + (it.link || '') + '|' + it.titulo + '|' + it.quando;
+
+function itens(){
+  return DADOS.itens.filter(it => !DESLIGADAS.has(grupo(it)) && (FEITOS || !it.entregue));
+}
+
+function gcalLink(it){
+  const p = new URLSearchParams({action:'TEMPLATE', text:`${it.titulo} — ${it.disciplina}`, details:it.link || ''});
+  const d = quandoDate(it);
+  if(d){ const f = x => x.toISOString().replace(/[-:]|\.\d{3}/g,''); p.set('dates', f(addDias(d,0))+'/'+f(new Date(d.getTime()+30*60000))) }
+  return 'https://calendar.google.com/calendar/render?' + p;
+}
+
+function htmlItem(it, {compacto=false, podeOcultar=false}={}){
+  const d = quandoDate(it), agora = new Date();
+  const atrasado = d && !it.entregue && it.origem === 'moodle' && it.tipo !== 'evento' && d < agora;
+  const embreve = d && !it.entregue && !atrasado && d - agora < 3*86400e3 && d > agora;
+  let quando = '';
+  if(d) quando = it.diaTodo ? (compacto ? 'dia todo' : dataCurta(d)) : (compacto ? hh(d) : `${dataCurta(d)} · ${hh(d)}`);
+  const tags = (it.entregue ? '<span class="tag ok">entregue</span>' : '')
+    + (atrasado ? '<span class="tag late">atrasado</span>' : '') + (embreve ? '<span class="tag soon">em breve</span>' : '');
+  const meta = [quando, it.origem === 'moodle' ? (compacto ? '' : it.disciplina) : (it.local || 'pessoal'), compacto ? '' : it.tipo].filter(Boolean).join(' · ');
+  const acoes = it.origem === 'moodle'
+    ? `<div class="acoes">${it.link ? `<a class="ico" href="${it.link}" target="_blank" rel="noopener" title="abrir no Moodle">↗</a>` : ''}
+       <a class="ico" href="${gcalLink(it)}" target="_blank" rel="noopener" title="pôr no Google Agenda (escolha a data/lembrete)">📅</a>
+       ${podeOcultar ? `<button class="ico" data-ocultar="${encodeURIComponent(chaveItem(it))}" title="ocultar daqui">✕</button>` : ''}</div>` : '';
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  if(compacto) return `<div class="item ${it.entregue?'feito':''}" style="--cor:${cor(it)}" title="${esc(it.disciplina||'')}"><span class="t">${esc(it.titulo)}</span><span class="meta">${esc(meta)}${tags}</span></div>`;
+  return `<div class="item ${it.entregue?'feito':''}" style="--cor:${cor(it)}"><div><div class="t">${esc(it.titulo)}${tags}</div><div class="meta">${esc(meta)}</div></div>${acoes}</div>`;
+}
+
+// ---------- vistas ----------
+function noDia(lista, dia){
+  return lista.filter(it => { const d = quandoDate(it); if(!d) return false;
+    if(mesmoDia(d, dia)) return true;
+    const f = it.fim != null ? quandoDate({quando:it.fim}) : null; // eventos de vários dias
+    return f && d < dia && (it.diaTodo ? f > dia : f > dia); })
+    .sort((a,b) => (a.diaTodo?0:1)-(b.diaTodo?0:1) || quandoDate(a)-quandoDate(b));
+}
+
+function vAtencao(){
+  const agora = new Date(), lim = addDias(agora, 7);
+  const lista = DADOS.itens.filter(it => !DESLIGADAS.has(grupo(it)));
+  const atrasados = lista.filter(it => it.origem==='moodle' && it.tipo!=='evento' && !it.entregue && quandoDate(it) && quandoDate(it) < agora && !OCULTOS.has(chaveItem(it)));
+  const prox = lista.filter(it => !it.entregue && quandoDate(it) && quandoDate(it) >= agora && quandoDate(it) <= lim).sort((a,b)=>quandoDate(a)-quandoDate(b));
+  let h = '';
+  h += `<div class="grupo"><h3>Próximos 7 dias</h3>${prox.map(i=>htmlItem(i)).join('') || '<div class="vazio">nada nos próximos 7 dias ✨</div>'}</div>`;
+  if(atrasados.length) h += `<div class="grupo"><h3>Passou do prazo e não consta entrega</h3>${atrasados.map(i=>htmlItem(i,{podeOcultar:true})).join('')}<div class="sub">Se foi feito em sala ou não precisava, clique em ✕ para ocultar.</div></div>`;
+  $('#lista-atencao').innerHTML = h;
+}
+
+function vSemana(){
+  const lista = itens(), hoje = inicioDia(new Date());
+  const fim = addDias(SEMANA0, 6);
+  let h = `<div class="semana-nav"><button class="btn" id="sem-ant">←</button><span class="lbl">${SEMANA0.getDate()}/${SEMANA0.getMonth()+1} – ${fim.getDate()}/${fim.getMonth()+1}</span><button class="btn" id="sem-prox">→</button><button class="btn" id="sem-hoje">hoje</button></div><div class="semana">`;
+  for(let i=0;i<7;i++){
+    const dia = addDias(SEMANA0, i), its = noDia(lista, dia);
+    h += `<div class="dia ${mesmoDia(dia,hoje)?'hoje':''}"><div class="d"><span>${DIAS[dia.getDay()]}</span><b>${dia.getDate()}</b></div>${its.map(it=>htmlItem(it,{compacto:true})).join('')}</div>`;
+  }
+  $('#v-semana').innerHTML = h + '</div>';
+  $('#sem-ant').onclick = () => { SEMANA0 = addDias(SEMANA0,-7); vSemana() };
+  $('#sem-prox').onclick = () => { SEMANA0 = addDias(SEMANA0,7); vSemana() };
+  $('#sem-hoje').onclick = () => { SEMANA0 = inicioDia(new Date()); SEMANA0 = addDias(SEMANA0, -((SEMANA0.getDay()+6)%7)); vSemana() };
+}
+
+function vMes(){
+  const lista = itens(), hoje = inicioDia(new Date());
+  let ini = addDias(MES0, -((MES0.getDay()+6)%7));
+  let h = `<div class="semana-nav"><button class="btn" id="mes-ant">←</button><span class="lbl">${MESES[MES0.getMonth()]} ${MES0.getFullYear()}</span><button class="btn" id="mes-prox">→</button><button class="btn" id="mes-hoje">hoje</button></div><div class="mes">`;
+  h += ['seg','ter','qua','qui','sex','sáb','dom'].map(d=>`<div class="cab">${d}</div>`).join('');
+  for(let i=0;i<42;i++){
+    const dia = addDias(ini, i); if(i===35 && dia.getMonth()!==MES0.getMonth()) break;
+    const its = noDia(lista, dia);
+    h += `<div class="cel ${dia.getMonth()!==MES0.getMonth()?'fora':''} ${mesmoDia(dia,hoje)?'hoje':''} ${mesmoDia(dia,DIA_SEL)?'sel':''}" data-dia="${dia.toISOString()}"><div class="n">${dia.getDate()}</div>`
+      + its.slice(0,3).map(it=>`<div class="p" style="--cor:${cor(it)}">${it.titulo.replace(/</g,'&lt;')}</div>`).join('')
+      + (its.length>3?`<div class="mais">+${its.length-3}</div>`:'')
+      + `<div class="dots">${its.map(it=>`<i style="--cor:${cor(it)}"></i>`).join('')}</div></div>`;
+  }
+  const sel = noDia(lista, DIA_SEL);
+  h += `</div><div class="card" style="margin-top:14px"><h2>${dataCurta(DIA_SEL)}</h2>${sel.map(i=>htmlItem(i)).join('') || '<div class="vazio">dia livre</div>'}</div>`;
+  $('#v-mes').innerHTML = h;
+  $('#mes-ant').onclick = () => { MES0 = new Date(MES0.getFullYear(), MES0.getMonth()-1, 1); vMes() };
+  $('#mes-prox').onclick = () => { MES0 = new Date(MES0.getFullYear(), MES0.getMonth()+1, 1); vMes() };
+  $('#mes-hoje').onclick = () => { MES0 = new Date(new Date().getFullYear(), new Date().getMonth(), 1); DIA_SEL = inicioDia(new Date()); vMes() };
+  document.querySelectorAll('.cel').forEach(c => c.onclick = () => { DIA_SEL = inicioDia(new Date(c.dataset.dia)); vMes() });
+}
+
+function vLista(){
+  const lista = itens(), agora = new Date();
+  const futuros = lista.filter(it => quandoDate(it) && quandoDate(it) >= inicioDia(agora)).sort((a,b)=>quandoDate(a)-quandoDate(b));
+  const semData = lista.filter(it => !quandoDate(it));
+  const porDisc = {};
+  semData.forEach(it => (porDisc[it.disciplina] ??= []).push(it));
+  let h = `<div class="card"><h2>Daqui pra frente</h2>${futuros.map(i=>htmlItem(i)).join('') || '<div class="vazio">nada marcado</div>'}</div>`;
+  h += `<div class="card"><h2>Sem prazo definido no Moodle</h2><div class="sub">Use 📅 para colocar no Google Agenda com a data que o professor falou em sala.</div>`
+    + Object.entries(porDisc).map(([d, its]) => `<div class="grupo"><h3>${d}</h3>${its.map(i=>htmlItem(i)).join('')}</div>`).join('')
+    + (semData.length ? '' : '<div class="vazio">tudo com data 🎉</div>') + '</div>';
+  $('#v-lista').innerHTML = h;
+}
+
+function chips(){
+  const gs = [...DADOS.disciplinas.map(d=>d.nome), ...(DADOS.itens.some(i=>i.origem==='google') ? ['Pessoal'] : [])];
+  $('#chips').innerHTML = gs.map(g => `<span class="chip ${DESLIGADAS.has(g)?'off':''}" data-g="${g}" style="background:${g==='Pessoal'?'var(--pessoal)':cores[g]}">${g}</span>`).join('');
+  document.querySelectorAll('.chip').forEach(c => c.onclick = () => {
+    const g = c.dataset.g; DESLIGADAS.has(g) ? DESLIGADAS.delete(g) : DESLIGADAS.add(g);
+    LS.set('desligadas', [...DESLIGADAS]); render();
+  });
+}
+
+function render(){
+  chips(); vAtencao();
+  ['semana','mes','lista'].forEach(v => $('#v-'+v).classList.toggle('hidden', v !== VISTA));
+  document.querySelectorAll('#tabs [data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === VISTA));
+  $('#tg-feitos').classList.toggle('on', FEITOS);
+  ({semana:vSemana, mes:vMes, lista:vLista})[VISTA]();
+}
+
+function montar(){
+  DADOS.disciplinas.forEach((d, i) => cores[d.nome] = `var(--c${i % 8})`);
+  const primeiro = (DADOS.nome || '').split(' ')[0];
+  $('#ola').textContent = primeiro ? `Olá, ${primeiro} 🌷` : 'Olá 🌷';
+  const at = new Date(DADOS.atualizado * 1000);
+  $('#atualizado').textContent = `${DIAS[new Date().getDay()]}, ${new Date().getDate()} de ${MESES[new Date().getMonth()]} · dados de ${dataCurta(at)} ${hh(at)}`;
+  $('#btn-moodle').href = DADOS.moodle;
+  document.querySelectorAll('#tabs [data-v]').forEach(b => b.onclick = () => { VISTA = b.dataset.v; LS.set('vista', VISTA); render() });
+  $('#tg-feitos').onclick = () => { FEITOS = !FEITOS; LS.set('feitos', FEITOS); render() };
+  document.addEventListener('click', e => {
+    const k = e.target.closest('[data-ocultar]')?.dataset.ocultar; if(!k) return;
+    OCULTOS.add(decodeURIComponent(k)); LS.set('ocultos', [...OCULTOS]); render();
+  });
+  render();
+}
+
+iniciar();
+</script>
+</body>
+</html>
