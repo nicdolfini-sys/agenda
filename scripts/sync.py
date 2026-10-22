@@ -193,6 +193,21 @@ def cifrar(obj):
     return {"v": 1, "iter": PBKDF2_ITER, "sal": b(sal), "iv": b(iv), "dados": b(ct)}
 
 
+def decifrar(p):
+    b = base64.b64decode
+    chave = PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=b(p["sal"]), iterations=p["iter"]).derive(SENHA.encode())
+    return json.loads(AESGCM(chave).decrypt(b(p["iv"]), b(p["dados"]), None))
+
+
+def publicados():
+    anterior = os.environ.get("SITE_URL", "").rstrip("/")
+    if not anterior:
+        return None
+    r = requests.get(f"{anterior}/data.enc.json", params={"t": NOW}, timeout=30)
+    r.raise_for_status()
+    return decifrar(r.json())
+
+
 def main():
     if len(SENHA) < 8:
         # Sem senha decente, não publica dado nenhum (o site fica só com o cadeado).
@@ -201,20 +216,19 @@ def main():
         return
     try:
         nome, disciplinas, itens = moodle()
+        lido = NOW
     except (requests.ConnectionError, requests.Timeout) as e:
-        # Moodle fora do ar ou bloqueando o GitHub: republica os dados que já estão no site
-        anterior = os.environ.get("SITE_URL", "").rstrip("/")
-        print(f"Moodle inacessível ({e.__class__.__name__}); mantendo os dados publicados", file=sys.stderr)
-        if not anterior:
+        # Moodle fora do ar ou bloqueando o GitHub: reaproveita a parte do Moodle já publicada
+        # e atualiza só o Google Agenda.
+        print(f"Moodle inacessível ({e.__class__.__name__}); reaproveitando a última leitura", file=sys.stderr)
+        velho = publicados()
+        if not velho:
             raise
-        r = requests.get(f"{anterior}/data.enc.json", params={"t": NOW}, timeout=30)
-        r.raise_for_status()
-        OUT.parent.mkdir(parents=True, exist_ok=True)
-        OUT.write_bytes(r.content)
-        print("::warning::Moodle não respondeu; o site continua com os dados da última leitura")
-        return
+        nome, disciplinas, lido = velho["nome"], velho["disciplinas"], velho["atualizado"]
+        itens = [i for i in velho["itens"] if i["origem"] == "moodle"]
+        print("::warning::Moodle não respondeu; a parte do Moodle é da última leitura")
     itens += google()
-    dados = {"nome": nome, "atualizado": NOW, "moodle": BASE, "disciplinas": disciplinas, "itens": itens}
+    dados = {"nome": nome, "atualizado": lido, "moodle": BASE, "disciplinas": disciplinas, "itens": itens}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(cifrar(dados)))
     if os.environ.get("AGENDA_DEBUG"):
