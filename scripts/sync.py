@@ -143,7 +143,22 @@ def moodle():
     return info["fullname"], [{"nome": n} for n in nomes.values()], list(itens.values())
 
 
-def google():
+# Eventos do Google com título "Grafos · P2" etc. são da faculdade: ganham a cor da disciplina.
+APELIDOS = {"Logística III": "Logística III", "Grafos": "Grafos e Redes", "Tráfego II": "Tráfego II",
+            "Eletricidade": "Eletricidade Aplicada", "SIT": "Sistemas Inteligentes de Transporte",
+            "PTP": "Planejamento de Transportes Públicos"}
+
+
+def da_faculdade(titulo, disciplinas):
+    prefixo, sep, resto = titulo.partition(" · ")
+    if not sep or prefixo not in APELIDOS:
+        return None, titulo
+    alvo = APELIDOS[prefixo]
+    nome = next((d for d in disciplinas if alvo in d), None)
+    return nome, resto
+
+
+def google(disciplinas=()):
     if not GCAL:
         return []
     import icalendar
@@ -171,11 +186,13 @@ def google():
                     x = x.replace(tzinfo=timezone(timedelta(hours=-3)))
                 return int(x.timestamp())
 
+            disc, titulo = da_faculdade(str(e.get("SUMMARY", "(sem título)")), disciplinas)
             out.append(
                 {
                     "origem": "google",
-                    "tipo": "pessoal",
-                    "titulo": str(e.get("SUMMARY", "(sem título)")),
+                    "tipo": "faculdade" if disc else "pessoal",
+                    "disciplina": disc,
+                    "titulo": titulo,
                     "local": str(e.get("LOCATION", "")) or None,
                     "quando": ts(s),
                     "fim": ts(f),
@@ -227,7 +244,7 @@ def main():
         nome, disciplinas, lido = velho["nome"], velho["disciplinas"], velho["atualizado"]
         itens = [i for i in velho["itens"] if i["origem"] == "moodle"]
         print("::warning::Moodle não respondeu; a parte do Moodle é da última leitura")
-    itens += google()
+    itens += google([d["nome"] for d in disciplinas])
     dados = {"nome": nome, "atualizado": lido, "moodle": BASE, "disciplinas": disciplinas, "itens": itens}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(cifrar(dados)))

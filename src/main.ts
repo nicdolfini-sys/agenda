@@ -63,7 +63,7 @@ let mes0=new Date(new Date().getFullYear(),new Date().getMonth(),1);
 let diaSel=inicioDia(new Date());
 const cores=new Map<string,string>();
 
-const grupo=(it:Item)=>it.origem==='google'?'Pessoal':(it.disciplina||'Outros');
+const grupo=(it:Item)=>it.disciplina||(it.origem==='google'?'Pessoal':'Outros');
 const cor=(it:Item)=>cores.get(grupo(it))??'#ccc';
 const chave=(it:Item)=>`${it.origem}|${it.link??''}|${it.titulo}|${it.quando}`;
 const prazo=(it:Item)=>it.origem==='moodle'&&it.tipo!=='evento';
@@ -90,7 +90,7 @@ function linha(it:Item,{ocultavel=false}={}):string {
  const d=data(it.quando);
  const quando=d?(it.diaTodo?curta(d):`${curta(d)} ${hh(d)}`):'sem data';
  const tags=(atrasado(it)?'<span class="tag late">atrasado</span>':'')+(it.entregue?'<span class="tag ok">entregue</span>':'');
- const onde=it.origem==='moodle'?it.disciplina:(it.local||'pessoal');
+ const onde=it.disciplina||it.local||'pessoal';
  const acts=it.origem==='moodle'?`<div class="acts">
    ${it.link?`<a class="act" href="${esc(it.link)}" target="_blank" rel="noopener" title="abrir no Moodle">↗</a>`:''}
    <a class="act" href="${esc(gcal(it))}" target="_blank" rel="noopener" title="pôr no Google Agenda">+</a>
@@ -99,7 +99,7 @@ function linha(it:Item,{ocultavel=false}={}):string {
   <div class="t">${esc(it.titulo)}${tags}</div>${acts}<div class="meta">${esc(quando)} · ${esc(onde)}</div></div>`;
 }
 const bloco=(it:Item)=>{const d=data(it.quando)!;
- return `<div class="ev ${it.entregue?'done':''}" style="--c:${cor(it)}" title="${esc(grupo(it))}"><b>${esc(it.titulo)}</b><span>${it.diaTodo?'dia todo':hh(d)}${it.origem==='moodle'?' · '+esc(abreviar(it.disciplina??'')):''}</span></div>`};
+ return `<div class="ev ${it.entregue?'done':''}" style="--c:${cor(it)}" title="${esc(grupo(it))}"><b>${esc(it.titulo)}</b><span>${it.diaTodo?'dia todo':hh(d)}${it.disciplina?' · '+esc(abreviar(it.disciplina)):''}</span></div>`};
 const abreviar=(s:string)=>s.split(/\s+/).filter(w=>w.length>2&&!/^(de|da|do|dos|das)$/i.test(w)).map(w=>/^[IVX]+$/.test(w)?w:w[0].toUpperCase()).join('');
 
 function atencao():string {
